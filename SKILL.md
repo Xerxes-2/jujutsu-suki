@@ -1,6 +1,6 @@
 ---
 name: jj
-description: REQUIRED for every VCS task in a jj repo (`.jj/` present, even alongside `.git/`). Fires on: commit, push, fetch, pull, status, diff, log, branch, bookmark, merge, rebase, split, squash, stash, undo, conflicts, PR prep. All mutations go through jj; git is read-only here.
+description: DAG-native version control discipline for jj repositories (a `.jj/` directory is present, possibly alongside `.git/`). Use when the task touches version control at all — commit, push, fetch, pull, status, diff, log, bookmark, branch, merge, rebase, split, squash, stash, undo, conflicts, PR prep. All mutations go through jj; git is read-only.
 ---
 
 # jj
@@ -94,6 +94,8 @@ jj log -r '<id> & (empty() | conflicts() | description(exact:""))'
 # Push probe — NON-EMPTY output is green (remote pointer actually moved):
 jj log -r '<id> & remote_bookmarks()'
 ```
+
+Judge probes by their *output*, never by exit status — jj exits 0 on an empty set, so chaining `&& echo ok` manufactures a false green.
 
 ## Sync and push
 
