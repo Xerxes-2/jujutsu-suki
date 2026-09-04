@@ -42,6 +42,14 @@ export JJ_CONFIG=/tmp/jj-audit.toml
 
 6. **命令存废**：上一版危险面里点名的每个命令/标志，用 `jj help <cmd>` 确认还在；报错文案变了要记录原文。
 
+7. **新命令的提示一致性**（本轮新发现的坑类别）：先 diff `jj help` 的 Commands 段与上一版命令清单，拿到新命令列表；每个新命令都要跑第 1 项的挂死模板。
+
+   关键：**同一命令里不同提示的实现可能不一致**——有的检测 TTY 后报错退出（安全），有的在 EOF 时**取默认值继续**、随后 fork `$EDITOR` 而挂死。因此不能测到第一个提示就收工：help 里每句“会询问用户……”都是一条待测分支，逐条造出相应输入形态再跑挂死模板。
+
+8. **新命令的“成功”代价**：跑通的那条路径也要验——exit 0 背后是不是静默引入了冲突（`jj log -r <id> -T conflict`）、或静默 abandon 了东西。判据只能从 DAG 读，不能从退出码读。
+
+9. **divergent 寻址**：制造一个分歧 change（`jj describe -r X -m A` 后 `jj --at-op <之前> describe -r X -m B`），验证裸 change id 在 `-r` / 位置参数上是否仍然歧义（`jj abandon X` 是否 exit 1），以及当前可用的替代寻址形式（commit id、change offset `X/0`、`change_id(X)`）。
+
 ## 产出与收尾
 
 1. 报告落到 `.scratch/facts/jj-<version>-cli.md`（gitignored），每条结论附实测证据。

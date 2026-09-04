@@ -5,7 +5,7 @@ description: DAG-native version control discipline for jj repositories (a `.jj/`
 
 # jj
 
-Verified against jj 0.44.0. Syntax lives in `jj help <cmd>`; this file carries the discipline, plus the danger surface no `--help` will confess.
+Verified against jj 0.45.1. Syntax lives in `jj help <cmd>`; this file carries the discipline, plus the danger surface no `--help` will confess.
 
 ## You operate on a DAG
 
@@ -26,7 +26,7 @@ jj log    # read before you write; IDs stay valid to reuse this turn
           # after ANY rewrite (squash/rebase/split/abandon): re-read, prefixes shift
 ```
 
-If a change ID resolves to two commits (jj marks it divergent), keep the survivor, `jj abandon` the other, re-read.
+If a change ID resolves to two commits (jj marks it divergent), that ID stops being addressable — `jj abandon <id>` fails. Abandon the loser by commit ID or change offset (`<id>/0`, `<id>/1`), then re-read.
 
 ## Two states
 
@@ -70,6 +70,7 @@ jj forks `$EDITOR` without checking for a TTY: in an agent shell that hangs fore
 - `describe` / `commit` without `-m`
 - `squash` without `-m`/`-u` when both source and destination carry descriptions (works bare otherwise — a nondeterministic trap, so always `-m`)
 - `split <paths>` without `-m`
+- `converge` without `--no-interactive` (forks `$EDITOR` to merge descriptions; with the flag it exits 1 rather than guessing, and even a successful converge can leave a conflicted commit)
 - everything `-i`/`--interactive`/`--tool`, `jj resolve`, `jj diffedit`
 
 **Exits 0 while lying:**
